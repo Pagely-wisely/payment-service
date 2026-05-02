@@ -16,6 +16,8 @@ import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "p_payment_history")
@@ -29,10 +31,12 @@ public class PaymentHistory extends BaseEntity {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @JoinColumn(name = "payment_id", nullable = false)
     private Payment payment;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "from_status", nullable = false, length = 20)
     private PaymentStatus fromStatus;
 
