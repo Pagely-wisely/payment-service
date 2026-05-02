@@ -36,7 +36,7 @@ CREATE TABLE p_payment
     buyer_id         UUID            NOT NULL,
     amount           INT             NOT NULL,
     status           payment_status  NOT NULL,
-    method           VARCHAR(20)     NOT NULL,
+    method           VARCHAR(20),
     pg_provider      VARCHAR(20),
     payment_key      VARCHAR(200),
     pg_approved_at   TIMESTAMP,

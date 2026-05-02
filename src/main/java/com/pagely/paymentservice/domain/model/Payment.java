@@ -18,6 +18,8 @@ import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "p_payment")
@@ -40,10 +42,11 @@ public class Payment extends BaseEntity {
     private int amount;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "status", nullable = false, length = 20)
     private PaymentStatus status;
 
-    @Column(name = "method", nullable = false, length = 20)
+    @Column(name = "method", length = 20)
     private String method;
 
     @Column(name = "pg_provider", length = 20)
@@ -63,4 +66,13 @@ public class Payment extends BaseEntity {
 
     @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PaymentHistory> histories = new ArrayList<>();
+
+    public static Payment create(UUID orderId, UUID buyerId, int amount) {
+        Payment payment = new Payment();
+        payment.orderId = orderId;
+        payment.buyerId = buyerId;
+        payment.amount = amount;
+        payment.status = PaymentStatus.READY;
+        return payment;
+    }
 }
