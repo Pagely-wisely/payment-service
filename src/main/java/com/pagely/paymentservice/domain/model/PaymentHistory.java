@@ -31,7 +31,6 @@ public class PaymentHistory extends BaseEntity {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @JoinColumn(name = "payment_id", nullable = false)
     private Payment payment;
 
@@ -41,6 +40,7 @@ public class PaymentHistory extends BaseEntity {
     private PaymentStatus fromStatus;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "to_status", nullable = false, length = 20)
     private PaymentStatus toStatus;
 
