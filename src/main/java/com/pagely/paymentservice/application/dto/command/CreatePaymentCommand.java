@@ -5,6 +5,7 @@ import java.util.UUID;
 public record CreatePaymentCommand(
         UUID orderId,
         UUID buyerId,
-        int price
+        int price,
+        UUID sellerId
 ) {
 }

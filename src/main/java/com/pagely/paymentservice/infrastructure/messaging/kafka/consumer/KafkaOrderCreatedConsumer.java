@@ -30,7 +30,8 @@ public class KafkaOrderCreatedConsumer {
             CreatePaymentCommand command = new CreatePaymentCommand(
                     event.payload().orderId(),
                     event.payload().buyerId(),
-                    event.payload().price()
+                    event.payload().price(),
+                    event.payload().sellerId()
             );
 
             paymentCommandService.createPayment(command);
