@@ -4,6 +4,7 @@ import com.pagely.common.exception.ErrorCode;
 import org.springframework.http.HttpStatus;
 
 public enum PaymentErrorCode implements ErrorCode {
+    PAYMENT_BUYER_MISMATCH("결제자 정보가 일치하지 않습니다.", HttpStatus.FORBIDDEN),
     PAYMENT_AMOUNT_MISMATCH("결제 금액 정보가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
     PAYMENT_ORDER_ID_MISMATCH("결제 주문 ID가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
     PAYMENT_NOT_FOUND("해당 결제정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND);

@@ -29,6 +29,7 @@ public class PaymentCommandService {
     public ConfirmPaymentResult confirmPayment(ConfirmPaymentCommand command) {
         Payment payment = paymentRepository.findByOrderId(command.orderId());
 
+        payment.validateBuyer(command.buyerId());
         payment.validateAmount(command.price());
 
         // PG 결제 승인 요청

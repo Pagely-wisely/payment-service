@@ -116,4 +116,10 @@ public class Payment extends BaseEntity {
         // 결제 보류금 저장
         this.paymentHold = PaymentHold.create(this);
     }
+
+    public void validateBuyer(UUID userId) {
+        if (!this.buyerId.equals(userId)) {
+            throw new BusinessException(PaymentErrorCode.PAYMENT_BUYER_MISMATCH);
+        }
+    }
 }
