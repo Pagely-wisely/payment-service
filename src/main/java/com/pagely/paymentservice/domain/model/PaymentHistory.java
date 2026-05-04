@@ -46,4 +46,13 @@ public class PaymentHistory extends BaseEntity {
 
     @Column(name = "reason", length = 200)
     private String reason;
+
+    public static PaymentHistory of(Payment payment, PaymentStatus fromStatus, String reason) {
+        PaymentHistory history = new PaymentHistory();
+        history.payment = payment;
+        history.fromStatus = fromStatus;
+        history.toStatus = payment.getStatus();
+        history.reason = reason;
+        return history;
+    }
 }
