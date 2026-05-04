@@ -38,6 +38,9 @@ public class Payment extends BaseEntity {
     @Column(name = "buyer_id", nullable = false)
     private UUID buyerId;
 
+    @Column(name = "seller_id", nullable = false)
+    private UUID sellerId;
+
     @Column(name = "amount", nullable = false)
     private int amount;
 

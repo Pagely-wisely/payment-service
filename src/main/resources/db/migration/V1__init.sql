@@ -34,6 +34,7 @@ CREATE TABLE p_payment
     id               UUID            NOT NULL,
     order_id         UUID            NOT NULL,
     buyer_id         UUID            NOT NULL,
+    seller_id        UUID            NOT NULL,
     amount           INT             NOT NULL,
     status           payment_status  NOT NULL,
     method           VARCHAR(20),
@@ -55,6 +56,7 @@ COMMENT ON TABLE  p_payment                 IS '결제';
 COMMENT ON COLUMN p_payment.id              IS '결제 ID';
 COMMENT ON COLUMN p_payment.order_id        IS '주문 ID';
 COMMENT ON COLUMN p_payment.buyer_id        IS '구매자 ID';
+COMMENT ON COLUMN p_payment.seller_id       IS '판매자 ID';
 COMMENT ON COLUMN p_payment.amount          IS '결제 금액';
 COMMENT ON COLUMN p_payment.status          IS '결제 상태';
 COMMENT ON COLUMN p_payment.method          IS '결제 수단 CARD/POINT';
