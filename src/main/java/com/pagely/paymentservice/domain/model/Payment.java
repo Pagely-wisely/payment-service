@@ -94,7 +94,9 @@ public class Payment extends BaseEntity {
     }
 
     public void validateConfirmResult(PaymentProviderConfirmResult result) {
-        if (!this.orderId.equals(result.orderId())) {
+        UUID orderId = UUID.fromString(result.orderId());
+        
+        if (!this.orderId.equals(orderId)) {
             throw new BusinessException(PaymentErrorCode.PAYMENT_ORDER_ID_MISMATCH);
         }
 
