@@ -70,10 +70,11 @@ public class Payment extends BaseEntity {
     @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PaymentHistory> histories = new ArrayList<>();
 
-    public static Payment create(UUID orderId, UUID buyerId, int amount) {
+    public static Payment create(UUID orderId, UUID buyerId, UUID sellerId, int amount) {
         Payment payment = new Payment();
         payment.orderId = orderId;
         payment.buyerId = buyerId;
+        payment.sellerId = sellerId;
         payment.amount = amount;
         payment.status = PaymentStatus.READY;
         return payment;

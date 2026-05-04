@@ -16,7 +16,7 @@ public class PaymentCommandService {
 
     @Transactional
     public void createPayment(CreatePaymentCommand command) {
-        Payment payment = Payment.create(command.orderId(), command.buyerId(), command.price());
+        Payment payment = Payment.create(command.orderId(), command.buyerId(), command.sellerId(), command.price());
         paymentRepository.save(payment);
     }
 }
