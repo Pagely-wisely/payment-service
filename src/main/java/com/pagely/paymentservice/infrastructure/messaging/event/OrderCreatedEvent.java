@@ -14,7 +14,8 @@ public record OrderCreatedEvent(
     public record Payload(
             UUID orderId,
             UUID buyerId,
-            int price
+            int price,
+            UUID sellerId
     ) {
     }
 }

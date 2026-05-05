@@ -51,3 +51,7 @@ eureka:
     enabled: false
     register-with-eureka: false
     fetch-registry: false
+
+toss:
+  base-url: ${TOSS_API_BASE_URL}
+  secret-key: ${TOSS_SECRET_KEY}

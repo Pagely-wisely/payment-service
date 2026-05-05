@@ -2,10 +2,10 @@ package com.pagely.paymentservice.application.dto.command;
 
 import java.util.UUID;
 
-public record CreatePaymentCommand(
+public record ConfirmPaymentCommand(
+        String paymentKey,
         UUID orderId,
-        UUID buyerId,
         int price,
-        UUID sellerId
+        UUID buyerId
 ) {
 }
