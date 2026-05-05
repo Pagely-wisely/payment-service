@@ -94,8 +94,12 @@ public class Payment extends BaseEntity {
     }
 
     public void validateConfirmResult(PaymentProviderConfirmResult result) {
+        if (result == null) {
+            throw new BusinessException(PaymentErrorCode.PG_CONFIRM_FAILED);
+        }
+
         UUID orderId = UUID.fromString(result.orderId());
-        
+
         if (!this.orderId.equals(orderId)) {
             throw new BusinessException(PaymentErrorCode.PAYMENT_ORDER_ID_MISMATCH);
         }
@@ -106,6 +110,10 @@ public class Payment extends BaseEntity {
     }
 
     public void confirm(PaymentProviderConfirmResult result) {
+        if (result == null) {
+            throw new BusinessException(PaymentErrorCode.PG_CONFIRM_FAILED);
+        }
+
         PaymentStatus prevStatus = this.status;
         this.status = PaymentStatus.COMPLETED;
         this.method = result.method();
