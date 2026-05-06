@@ -5,6 +5,8 @@ import com.pagely.paymentservice.application.dto.command.CreatePaymentCommand;
 import com.pagely.paymentservice.application.dto.result.ConfirmPaymentResult;
 import com.pagely.paymentservice.application.dto.result.PaymentProviderConfirmResult;
 import com.pagely.paymentservice.application.port.out.PaymentProvider;
+import com.pagely.paymentservice.domain.event.PaymentEvents;
+import com.pagely.paymentservice.domain.event.payload.PaymentCompletedEvent;
 import com.pagely.paymentservice.domain.model.Payment;
 import com.pagely.paymentservice.domain.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ public class PaymentCommandService {
 
     private final PaymentRepository paymentRepository;
     private final PaymentProvider paymentProvider;
+    private final PaymentEvents paymentEvents;
 
     @Transactional
     public void createPayment(CreatePaymentCommand command) {
@@ -42,6 +45,9 @@ public class PaymentCommandService {
         payment.validateConfirmResult(result); // PG 승인 응답값 검증
 
         payment.confirm(result);
+
+        // 결제 완료 이벤트 발행
+        paymentEvents.paymentCompleted(PaymentCompletedEvent.of(payment));
 
         return ConfirmPaymentResult.fromEntity(payment);
     }
