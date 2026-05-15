@@ -139,4 +139,15 @@ public class Payment extends BaseEntity {
         }
         this.status = PaymentStatus.CONFIRM_REQUESTED;
     }
+
+    public void markFailed() {
+        if (this.status != PaymentStatus.COMPLETED) {
+            throw new BusinessException(PaymentErrorCode.PAYMENT_NOT_CONFIRMABLE);
+        }
+        this.status = PaymentStatus.FAILED;
+    }
+
+    public boolean isCompleted() {
+        return this.status == PaymentStatus.COMPLETED;
+    }
 }

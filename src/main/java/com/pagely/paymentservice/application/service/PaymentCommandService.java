@@ -56,6 +56,12 @@ public class PaymentCommandService {
         return ConfirmPaymentResult.fromEntity(payment);
     }
 
+    @Transactional
+    public void markAsFailed(UUID orderId) {
+        Payment payment = getPaymentByOrderIdOrThrow(orderId);
+        payment.markFailed();
+    }
+
     private Payment getPaymentByOrderIdOrThrow(UUID orderId) {
         return paymentRepository.findByOrderId(orderId)
                 .orElseThrow(() -> new BusinessException(PaymentErrorCode.PAYMENT_NOT_FOUND));
