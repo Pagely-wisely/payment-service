@@ -29,21 +29,22 @@ public class PaymentCommandService {
     }
 
     @Transactional
-    public ConfirmPaymentResult confirmPayment(ConfirmPaymentCommand command) {
+    public void validateAndMarkConfirmRequested(ConfirmPaymentCommand command) {
         Payment payment = paymentRepository.findByOrderId(command.orderId());
 
         payment.validateBuyer(command.buyerId());
         payment.validateAmount(command.price());
+        payment.markConfirmRequested();
+    }
 
-        // PG 결제 승인 요청
-        PaymentProviderConfirmResult result = paymentProvider.confirm(
-                command.paymentKey(),
-                command.orderId().toString(),
-                command.price()
-        );
+    @Transactional
+    public ConfirmPaymentResult applyConfirmedResult(
+            ConfirmPaymentCommand command,
+            PaymentProviderConfirmResult result
+    ) {
+        Payment payment = paymentRepository.findByOrderId(command.orderId());
 
         payment.validateConfirmResult(result); // PG 승인 응답값 검증
-
         payment.confirm(result);
 
         // 결제 완료 이벤트 발행

@@ -132,4 +132,11 @@ public class Payment extends BaseEntity {
             throw new BusinessException(PaymentErrorCode.PAYMENT_BUYER_MISMATCH);
         }
     }
+
+    public void markConfirmRequested() {
+        if (this.status != PaymentStatus.READY) {
+            throw new BusinessException(PaymentErrorCode.PAYMENT_NOT_CONFIRMABLE);
+        }
+        this.status = PaymentStatus.CONFIRM_REQUESTED;
+    }
 }
