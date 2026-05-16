@@ -132,4 +132,29 @@ public class Payment extends BaseEntity {
             throw new BusinessException(PaymentErrorCode.PAYMENT_BUYER_MISMATCH);
         }
     }
+
+    public void markConfirmRequested() {
+        if (this.status != PaymentStatus.READY) {
+            throw new BusinessException(PaymentErrorCode.PAYMENT_NOT_CONFIRMABLE);
+        }
+        this.status = PaymentStatus.CONFIRM_REQUESTED;
+    }
+
+    public void markFailed(String reason) {
+        if (this.status == PaymentStatus.COMPLETED) {
+            throw new BusinessException(PaymentErrorCode.PAYMENT_ALREADY_COMPLETED);
+        }
+
+        if (this.status == PaymentStatus.FAILED) {
+            throw new BusinessException(PaymentErrorCode.PAYMENT_ALREADY_CANCELLED);
+        }
+
+        PaymentStatus prevStatus = this.status;
+        this.status = PaymentStatus.FAILED;
+        this.histories.add(PaymentHistory.of(this, prevStatus, reason));
+    }
+
+    public boolean isCompleted() {
+        return this.status == PaymentStatus.COMPLETED;
+    }
 }

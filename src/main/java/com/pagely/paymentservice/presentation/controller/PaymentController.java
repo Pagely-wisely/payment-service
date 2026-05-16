@@ -5,7 +5,7 @@ import com.pagely.common.auth.annotation.AuthRequired;
 import com.pagely.common.auth.annotation.CurrentUserId;
 import com.pagely.common.response.ApiResponse;
 import com.pagely.paymentservice.application.dto.result.ConfirmPaymentResult;
-import com.pagely.paymentservice.application.service.PaymentCommandService;
+import com.pagely.paymentservice.application.service.PaymentCommandFacade;
 import com.pagely.paymentservice.presentation.dto.request.ConfirmPaymentRequest;
 import com.pagely.paymentservice.presentation.dto.response.ConfirmPaymentResponse;
 import jakarta.validation.Valid;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class PaymentController {
 
-    private final PaymentCommandService paymentCommandService;
+    private final PaymentCommandFacade paymentCommandFacade;
 
     @PostMapping("/confirm")
     @AuthRequired(role = Role.USER)
@@ -30,7 +30,7 @@ public class PaymentController {
             @CurrentUserId UUID userId,
             @Valid @RequestBody ConfirmPaymentRequest request
     ) {
-        ConfirmPaymentResult result = paymentCommandService.confirmPayment(request.toCommand(userId));
+        ConfirmPaymentResult result = paymentCommandFacade.confirmPayment(request.toCommand(userId));
         return ApiResponse.ok(ConfirmPaymentResponse.fromResult(result));
     }
 }
