@@ -8,7 +8,8 @@ public enum PaymentErrorCode implements ErrorCode {
     PAYMENT_AMOUNT_MISMATCH("결제 금액 정보가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
     PAYMENT_ORDER_ID_MISMATCH("결제 주문 ID가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
     PAYMENT_NOT_CONFIRMABLE("현재 상태에서 결제 승인을 요청할 수 없습니다.", HttpStatus.BAD_REQUEST),
-    PAYMENT_ALREADY_COMPLETED("이미 승인완료된 결제 정보입니다.", HttpStatus.CONFLICT),
+    PAYMENT_ALREADY_COMPLETED("이미 승인 완료된 결제 정보입니다.", HttpStatus.CONFLICT),
+    PAYMENT_ALREADY_CANCELLED("이미 승인 취소된 결제 정보입니다.", HttpStatus.CONFLICT),
     PAYMENT_NOT_FOUND("해당 결제정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     PG_CONFIRM_FAILED("PG 결제 승인에 실패하였습니다.", HttpStatus.BAD_GATEWAY);
 
