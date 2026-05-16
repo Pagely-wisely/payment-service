@@ -57,9 +57,9 @@ public class PaymentCommandService {
     }
 
     @Transactional
-    public void markAsFailed(UUID orderId) {
+    public void markAsFailed(UUID orderId, String reason) {
         Payment payment = getPaymentByOrderIdOrThrow(orderId);
-        payment.markFailed();
+        payment.markFailed(reason);
     }
 
     private Payment getPaymentByOrderIdOrThrow(UUID orderId) {

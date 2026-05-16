@@ -5,8 +5,10 @@ import com.pagely.paymentservice.application.dto.result.ConfirmPaymentResult;
 import com.pagely.paymentservice.application.dto.result.PaymentProviderConfirmResult;
 import com.pagely.paymentservice.application.port.out.PaymentProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class PaymentCommandFacade {
@@ -40,11 +42,19 @@ public class PaymentCommandFacade {
                     command.price()
             );
         } catch (Exception e) {
-            paymentCommandService.markAsFailed(command.orderId());
+            log.error("[PaymentCommandFacade] PG 결제 승인 API 실패");
+            
+            try {
+                paymentCommandService.markAsFailed(command.orderId(), "PG 결제 승인 실패");
+            } catch (Exception ex) {
+                log.error("[PaymentCommandFacade] 실패 상태 DB 저장 실패");
+
+                throw ex;
+            }
 
             // TODO: 승인 실패 이벤트 발행
 
-            throw new RuntimeException(e);
+            throw e;
         }
     }
 }

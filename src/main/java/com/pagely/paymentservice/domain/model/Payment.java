@@ -140,11 +140,10 @@ public class Payment extends BaseEntity {
         this.status = PaymentStatus.CONFIRM_REQUESTED;
     }
 
-    public void markFailed() {
-        if (this.status != PaymentStatus.COMPLETED) {
-            throw new BusinessException(PaymentErrorCode.PAYMENT_NOT_CONFIRMABLE);
-        }
+    public void markFailed(String reason) {
+        PaymentStatus prevStatus = this.status;
         this.status = PaymentStatus.FAILED;
+        this.histories.add(PaymentHistory.of(this, prevStatus, reason));
     }
 
     public boolean isCompleted() {
