@@ -10,6 +10,9 @@ spring:
     bootstrap-servers: ${KAFKA_EXTERNAL_HOST:host.docker.internal}:${KAFKA_EXTERNAL_PORT}
 
 eureka:
+  instance:
+    prefer-ip-address: false
+
   client:
     enabled: true
     register-with-eureka: true
