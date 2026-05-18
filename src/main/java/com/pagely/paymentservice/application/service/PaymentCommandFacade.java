@@ -49,17 +49,17 @@ public class PaymentCommandFacade {
 //            PaymentProviderConfirmResult pgResult = paymentProvider.getConfirmResult(command.paymentKey());
 //            return paymentCommandService.applyConfirmedResult(command, pgResult);
             return null;
-            
+
         } catch (PgRejectedException e) {
             // 4XX 에러 PG에서 거절했으므로 FAILED 처리
             log.warn("[Payment] PG 거절. orderId={}, code={}", command.orderId(), e.getPgCode());
-            paymentCommandService.markAsFailed(command.orderId(), "PG 거절: " + e.getPgCode());
+            paymentCommandService.handleConfirmFailure(command.orderId(), "PG 거절: " + e.getPgCode());
             throw new BusinessException(PaymentErrorCode.PG_REJECTED, e.getMessage());
 
         } catch (PgSystemException e) {
             // 재시도 3회 소진 → FAILED 처리
             log.error("[Payment] PG 시스템 오류. orderId={}, code={}", command.orderId(), e.getPgCode());
-            paymentCommandService.markAsFailed(command.orderId(), "PG 시스템 오류: " + e.getPgCode());
+            paymentCommandService.handleConfirmFailure(command.orderId(), "PG 시스템 오류: " + e.getPgCode());
             throw new BusinessException(PaymentErrorCode.PG_SYSTEM_ERROR, e.getMessage());
         }
     }
