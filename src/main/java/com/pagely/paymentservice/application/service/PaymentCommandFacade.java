@@ -52,19 +52,21 @@ public class PaymentCommandFacade {
             throw e;
         } catch (PgRejectedException e) {
             // 4XX 에러 PG에서 거절했으므로 FAILED 처리
-            log.warn("[Payment] PG 거절. orderId={}, code={}", command.orderId(), e.getPgCode());
+            log.warn("[Payment] PG 거절. orderId={}, code={}, message={}"
+                    , command.orderId(), e.getPgCode(), e.getMessage());
             paymentCommandService.handleConfirmFailure(command.orderId(), "PG 거절: " + e.getPgCode());
-            throw new BusinessException(PaymentErrorCode.PG_REJECTED, e.getMessage());
+            throw new BusinessException(PaymentErrorCode.PG_REJECTED);
 
         } catch (PgSystemException e) {
             // 재시도 3회 소진 → FAILED 처리
-            log.error("[Payment] PG 시스템 오류. orderId={}, code={}", command.orderId(), e.getPgCode());
+            log.error("[Payment] PG 시스템 오류. orderId={}, code={}, message={}"
+                    , command.orderId(), e.getPgCode(), e.getMessage());
             paymentCommandService.handleConfirmFailure(command.orderId(), "PG 시스템 오류: " + e.getPgCode());
-            throw new BusinessException(PaymentErrorCode.PG_SYSTEM_ERROR, e.getMessage());
+            throw new BusinessException(PaymentErrorCode.PG_SYSTEM_ERROR);
 
         } catch (PgResponseParseException e) {
             log.error("[Payment] PG 응답 파싱 실패. orderId={}", command.orderId());
-            throw new BusinessException(PaymentErrorCode.PG_SYSTEM_ERROR, e.getMessage());
+            throw new BusinessException(PaymentErrorCode.PG_SYSTEM_ERROR);
         }
     }
 
