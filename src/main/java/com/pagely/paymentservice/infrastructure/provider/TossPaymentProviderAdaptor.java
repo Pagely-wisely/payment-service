@@ -2,9 +2,9 @@ package com.pagely.paymentservice.infrastructure.provider;
 
 import com.pagely.paymentservice.application.dto.result.PaymentProviderConfirmResult;
 import com.pagely.paymentservice.application.port.out.PaymentProvider;
-import com.pagely.paymentservice.infrastructure.client.pg.TossConfirmRequest;
-import com.pagely.paymentservice.infrastructure.client.pg.TossConfirmResponse;
 import com.pagely.paymentservice.infrastructure.client.pg.TossPaymentClient;
+import com.pagely.paymentservice.infrastructure.client.pg.dto.TossConfirmRequest;
+import com.pagely.paymentservice.infrastructure.client.pg.dto.TossConfirmResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

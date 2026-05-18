@@ -1,5 +1,7 @@
 package com.pagely.paymentservice.infrastructure.client.pg;
 
+import com.pagely.paymentservice.infrastructure.client.pg.dto.TossConfirmRequest;
+import com.pagely.paymentservice.infrastructure.client.pg.dto.TossConfirmResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
