@@ -2,6 +2,7 @@ package com.pagely.paymentservice.infrastructure.messaging.kafka.producer;
 
 import com.pagely.paymentservice.application.port.out.PaymentEventPort;
 import com.pagely.paymentservice.domain.event.payload.PaymentCompletedEvent;
+import com.pagely.paymentservice.domain.event.payload.PaymentConfirmFailedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -13,12 +14,18 @@ import org.springframework.stereotype.Component;
 public class KafkaPaymentEventAdapter implements PaymentEventPort {
 
     private static final String PAYMENT_COMPLETED_TOPIC = "payment-completed";
+    private static final String PAYMENT_CONFIRM_FAILED_TOPIC = "payment-confirm-failed";
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Override
     public void publishPaymentCompleted(PaymentCompletedEvent event) {
         publish(PAYMENT_COMPLETED_TOPIC, event.getDomainId(), event);
+    }
+
+    @Override
+    public void publishPaymentConfirmFailed(PaymentConfirmFailedEvent event) {
+        publish(PAYMENT_CONFIRM_FAILED_TOPIC, event.getDomainId(), event);
     }
 
     private void publish(String topic, String key, Object event) {

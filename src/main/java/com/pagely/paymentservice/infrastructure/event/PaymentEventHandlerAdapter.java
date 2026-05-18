@@ -3,6 +3,7 @@ package com.pagely.paymentservice.infrastructure.event;
 import com.pagely.paymentservice.application.event.PaymentEventHandler;
 import com.pagely.paymentservice.application.port.out.PaymentEventPort;
 import com.pagely.paymentservice.domain.event.payload.PaymentCompletedEvent;
+import com.pagely.paymentservice.domain.event.payload.PaymentConfirmFailedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
@@ -18,5 +19,11 @@ public class PaymentEventHandlerAdapter implements PaymentEventHandler {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handlePaymentCompleted(PaymentCompletedEvent event) {
         paymentEventPort.publishPaymentCompleted(event);
+    }
+
+    @Override
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handlePaymentConfirmFailed(PaymentConfirmFailedEvent event) {
+        paymentEventPort.publishPaymentConfirmFailed(event);
     }
 }
