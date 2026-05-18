@@ -11,7 +11,12 @@ public enum PaymentErrorCode implements ErrorCode {
     PAYMENT_ALREADY_COMPLETED("이미 승인 완료된 결제 정보입니다.", HttpStatus.CONFLICT),
     PAYMENT_ALREADY_CANCELLED("이미 승인 취소된 결제 정보입니다.", HttpStatus.CONFLICT),
     PAYMENT_NOT_FOUND("해당 결제정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
-    PG_CONFIRM_FAILED("PG 결제 승인에 실패하였습니다.", HttpStatus.BAD_GATEWAY);
+    PG_CONFIRM_FAILED("PG 결제 승인에 실패하였습니다.", HttpStatus.BAD_GATEWAY),
+
+
+    // PG 오류
+    PG_REJECTED("카드사 또는 PG사에서 결제를 거절했습니다.", HttpStatus.BAD_REQUEST),
+    PG_SYSTEM_ERROR("PG 시스템 오류가 발생했습니다. 잠시 후 다시 시도해주세요.", HttpStatus.SERVICE_UNAVAILABLE);
 
     private final String code;
     private final String message;
