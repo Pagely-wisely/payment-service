@@ -5,7 +5,7 @@ import com.pagely.paymentservice.application.port.out.PaymentProvider;
 import com.pagely.paymentservice.infrastructure.client.pg.TossPaymentClient;
 import com.pagely.paymentservice.infrastructure.client.pg.dto.TossConfirmRequest;
 import com.pagely.paymentservice.infrastructure.client.pg.dto.TossConfirmResponse;
-import com.pagely.paymentservice.infrastructure.client.pg.exception.TossSystemException;
+import com.pagely.paymentservice.application.exception.PgSystemException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.annotation.Backoff;
@@ -22,13 +22,13 @@ public class TossPaymentProviderAdaptor implements PaymentProvider {
 
     /**
      * <pre>
-     * TossSystemException(기술적 오류)에 한해 최대 3회 재시도.
-     * backoff: 500ms → 1000ms → 2000ms (multiplier=2)
-     * TossBusinessException은 재시도 대상에서 제외
+     * PgSystemException(기술적 오류)에 한해 최대 3회 재시도.
+     * backoff: 1000ms → 2000ms → 4000ms (multiplier=2, max=5000ms)
+     * PgRejectedException은 재시도 대상에서 제외
      * </pre>
      */
     @Retryable(
-            retryFor = TossSystemException.class,
+            retryFor = PgSystemException.class,
             maxAttempts = 3,
             backoff = @Backoff(delay = 1000L, multiplier = 2, maxDelay = 5000L)
     )
@@ -47,13 +47,13 @@ public class TossPaymentProviderAdaptor implements PaymentProvider {
      * </pre>
      */
     @Recover
-    public TossConfirmResponse recoverFromSystemError(
-            TossSystemException e,
+    public PaymentProviderConfirmResult recoverFromSystemError(
+            PgSystemException e,
             String paymentKey,
             String orderId,
             int amount
     ) {
-        log.error("[Toss] 재시도 3회 소진. orderId={}, code={}", orderId, e.getTossCode());
+        log.error("[Toss] 재시도 3회 소진. orderId={}, code={}", orderId, e.getPgCode());
         throw e;
     }
 

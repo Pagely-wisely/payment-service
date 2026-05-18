@@ -1,10 +1,10 @@
 package com.pagely.paymentservice.infrastructure.client.pg;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pagely.paymentservice.application.exception.PgAlreadyProcessedException;
+import com.pagely.paymentservice.application.exception.PgRejectedException;
+import com.pagely.paymentservice.application.exception.PgSystemException;
 import com.pagely.paymentservice.infrastructure.client.pg.dto.TossErrorResponse;
-import com.pagely.paymentservice.infrastructure.client.pg.exception.TossAlreadyProcessedException;
-import com.pagely.paymentservice.infrastructure.client.pg.exception.TossBusinessException;
-import com.pagely.paymentservice.infrastructure.client.pg.exception.TossSystemException;
 import feign.Response;
 import feign.codec.ErrorDecoder;
 import java.io.IOException;
@@ -22,7 +22,7 @@ public class TossPaymentErrorDecoder implements ErrorDecoder {
     public Exception decode(String methodKey, Response response) {
         TossErrorResponse error = parseBody(response);
         if (error == null) {
-            return new TossSystemException("PARSE_FAILED", "Toss 오류 응답 파싱 실패");
+            return new PgSystemException("PARSE_FAILED", "Toss 오류 응답 파싱 실패");
         }
 
         log.warn("[Toss] API 오류. code={}, message={}, status={}",
@@ -30,16 +30,16 @@ public class TossPaymentErrorDecoder implements ErrorDecoder {
 
         // 이미 결제되어 DB 동기화 작업 필요한 경우
         if ("ALREADY_PROCESSED_PAYMENT".equals(error.code())) {
-            return new TossAlreadyProcessedException(error.message());
+            return new PgAlreadyProcessedException(error.message());
         }
 
         // 500대 에러 재시도 필요
         if (response.status() >= 500) {
-            return new TossSystemException(error.code(), error.message());
+            return new PgSystemException(error.code(), error.message());
         }
 
         // 400대 에러는 비즈니스 거절이므로 재시도 X
-        return new TossBusinessException(error.code(), error.message());
+        return new PgRejectedException(error.code(), error.message());
     }
 
     private TossErrorResponse parseBody(Response response) {
