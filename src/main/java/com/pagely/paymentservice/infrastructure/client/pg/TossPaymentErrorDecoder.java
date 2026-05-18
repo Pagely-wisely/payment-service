@@ -3,6 +3,7 @@ package com.pagely.paymentservice.infrastructure.client.pg;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pagely.paymentservice.application.exception.PgAlreadyProcessedException;
 import com.pagely.paymentservice.application.exception.PgRejectedException;
+import com.pagely.paymentservice.application.exception.PgResponseParseException;
 import com.pagely.paymentservice.application.exception.PgSystemException;
 import com.pagely.paymentservice.infrastructure.client.pg.dto.TossErrorResponse;
 import feign.Response;
@@ -22,7 +23,8 @@ public class TossPaymentErrorDecoder implements ErrorDecoder {
     public Exception decode(String methodKey, Response response) {
         TossErrorResponse error = parseBody(response);
         if (error == null) {
-            return new PgSystemException("PARSE_FAILED", "Toss 오류 응답 파싱 실패");
+            log.error("[Toss] 응답 바디 파싱 실패. status={}", response.status());
+            return new PgResponseParseException("Toss 오류 응답 파싱 실패");
         }
 
         log.warn("[Toss] API 오류. code={}, message={}, status={}",

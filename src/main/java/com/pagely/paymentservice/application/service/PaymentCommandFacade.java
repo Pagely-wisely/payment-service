@@ -6,6 +6,7 @@ import com.pagely.paymentservice.application.dto.result.ConfirmPaymentResult;
 import com.pagely.paymentservice.application.dto.result.PaymentProviderConfirmResult;
 import com.pagely.paymentservice.application.exception.PgAlreadyProcessedException;
 import com.pagely.paymentservice.application.exception.PgRejectedException;
+import com.pagely.paymentservice.application.exception.PgResponseParseException;
 import com.pagely.paymentservice.application.exception.PgSystemException;
 import com.pagely.paymentservice.application.port.out.PaymentProvider;
 import com.pagely.paymentservice.domain.exception.PaymentErrorCode;
@@ -48,8 +49,7 @@ public class PaymentCommandFacade {
             log.warn("[Payment] PG 이미 처리된 결제. DB 동기화 진행 orderId={}", command.orderId());
 //            PaymentProviderConfirmResult pgResult = paymentProvider.getConfirmResult(command.paymentKey());
 //            return paymentCommandService.applyConfirmedResult(command, pgResult);
-            return null;
-
+            throw e;
         } catch (PgRejectedException e) {
             // 4XX 에러 PG에서 거절했으므로 FAILED 처리
             log.warn("[Payment] PG 거절. orderId={}, code={}", command.orderId(), e.getPgCode());
@@ -60,6 +60,10 @@ public class PaymentCommandFacade {
             // 재시도 3회 소진 → FAILED 처리
             log.error("[Payment] PG 시스템 오류. orderId={}, code={}", command.orderId(), e.getPgCode());
             paymentCommandService.handleConfirmFailure(command.orderId(), "PG 시스템 오류: " + e.getPgCode());
+            throw new BusinessException(PaymentErrorCode.PG_SYSTEM_ERROR, e.getMessage());
+
+        } catch (PgResponseParseException e) {
+            log.error("[Payment] PG 응답 파싱 실패. orderId={}", command.orderId());
             throw new BusinessException(PaymentErrorCode.PG_SYSTEM_ERROR, e.getMessage());
         }
     }
