@@ -1,0 +1,57 @@
+package com.pagely.paymentservice.infrastructure.client.pg;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pagely.paymentservice.infrastructure.client.pg.dto.TossErrorResponse;
+import com.pagely.paymentservice.infrastructure.client.pg.exception.TossAlreadyProcessedException;
+import com.pagely.paymentservice.infrastructure.client.pg.exception.TossBusinessException;
+import com.pagely.paymentservice.infrastructure.client.pg.exception.TossSystemException;
+import feign.Response;
+import feign.codec.ErrorDecoder;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@RequiredArgsConstructor
+public class TossPaymentErrorDecoder implements ErrorDecoder {
+
+    private final ObjectMapper objectMapper;
+
+    @Override
+    public Exception decode(String methodKey, Response response) {
+        TossErrorResponse error = parseBody(response);
+        if (error == null) {
+            return new TossSystemException("PARSE_FAILED", "Toss 오류 응답 파싱 실패");
+        }
+
+        log.warn("[Toss] API 오류. code={}, message={}, status={}",
+                error.code(), error.message(), response.status());
+
+        // 이미 결제되어 DB 동기화 작업 필요한 경우
+        if ("ALREADY_PROCESSED_PAYMENT".equals(error.code())) {
+            return new TossAlreadyProcessedException(error.message());
+        }
+
+        // 500대 에러 재시도 필요
+        if (response.status() >= 500) {
+            return new TossSystemException(error.code(), error.message());
+        }
+
+        // 400대 에러는 비즈니스 거절이므로 재시도 X
+        return new TossBusinessException(error.code(), error.message());
+    }
+
+    private TossErrorResponse parseBody(Response response) {
+        if (response.body() == null) {
+            return null;
+        }
+        try {
+            String body = new String(response.body().asInputStream().readAllBytes(), StandardCharsets.UTF_8);
+            return objectMapper.readValue(body, TossErrorResponse.class);
+        } catch (IOException e) {
+            log.warn("[Toss] 응답 바디 파싱 중 예외 발생", e);
+            return null;
+        }
+    }
+}
