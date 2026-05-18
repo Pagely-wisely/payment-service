@@ -42,13 +42,13 @@ public class PaymentCommandFacade {
                     command.price()
             );
         } catch (Exception e) {
-            log.error("[PaymentCommandFacade] PG 결제 승인 API 실패");
-            
+            log.error("[PaymentCommandFacade] PG 결제 승인 API 실패 orderId={} paymentKey={} cause={}",
+                    command.orderId(), command.paymentKey(), e.getMessage(), e);
+
             try {
                 paymentCommandService.markAsFailed(command.orderId(), "PG 결제 승인 실패");
             } catch (Exception ex) {
-                log.error("[PaymentCommandFacade] 실패 상태 DB 저장 실패");
-
+                log.error("[PaymentCommandFacade] 실패 상태 DB 저장 실패 orderId={}", command.orderId(), ex);
                 throw ex;
             }
 
