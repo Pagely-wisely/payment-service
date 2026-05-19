@@ -1,9 +1,15 @@
 package com.pagely.paymentservice.application.service;
 
+import com.pagely.common.exception.BusinessException;
 import com.pagely.paymentservice.application.dto.command.ConfirmPaymentCommand;
 import com.pagely.paymentservice.application.dto.result.ConfirmPaymentResult;
 import com.pagely.paymentservice.application.dto.result.PaymentProviderConfirmResult;
+import com.pagely.paymentservice.application.exception.PgAlreadyProcessedException;
+import com.pagely.paymentservice.application.exception.PgRejectedException;
+import com.pagely.paymentservice.application.exception.PgResponseParseException;
+import com.pagely.paymentservice.application.exception.PgSystemException;
 import com.pagely.paymentservice.application.port.out.PaymentProvider;
+import com.pagely.paymentservice.domain.exception.PaymentErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -28,33 +34,41 @@ public class PaymentCommandFacade {
 
         paymentCommandService.validateAndMarkConfirmRequested(command);
 
-        PaymentProviderConfirmResult pgResult = requestPgConfirm(command);
-
-        return paymentCommandService.applyConfirmedResult(command, pgResult);
-    }
-
-    // PG 승인 요청
-    private PaymentProviderConfirmResult requestPgConfirm(ConfirmPaymentCommand command) {
+        // Toss 결제 승인 API 호출
         try {
-            return paymentProvider.confirm(
+            PaymentProviderConfirmResult pgResult = paymentProvider.confirm(
                     command.paymentKey(),
                     command.orderId().toString(),
                     command.price()
             );
-        } catch (Exception e) {
-            log.error("[PaymentCommandFacade] PG 결제 승인 API 실패");
-            
-            try {
-                paymentCommandService.markAsFailed(command.orderId(), "PG 결제 승인 실패");
-            } catch (Exception ex) {
-                log.error("[PaymentCommandFacade] 실패 상태 DB 저장 실패");
 
-                throw ex;
-            }
+            return paymentCommandService.applyConfirmedResult(command, pgResult);
 
-            // TODO: 승인 실패 이벤트 발행
-
+        } catch (PgAlreadyProcessedException e) {
+            // TODO: Toss 결제 조회 API로 상태 동기화 필요
+            log.warn("[Payment] PG 이미 처리된 결제. DB 동기화 진행 orderId={}", command.orderId());
+//            PaymentProviderConfirmResult pgResult = paymentProvider.getConfirmResult(command.paymentKey());
+//            return paymentCommandService.applyConfirmedResult(command, pgResult);
             throw e;
+        } catch (PgRejectedException e) {
+            // 4XX 에러 PG에서 거절했으므로 FAILED 처리
+            log.warn("[Payment] PG 거절. orderId={}, code={}, message={}"
+                    , command.orderId(), e.getPgCode(), e.getMessage());
+            paymentCommandService.handleConfirmFailure(command.orderId(), "PG 거절: " + e.getPgCode());
+            throw new BusinessException(PaymentErrorCode.PG_REJECTED);
+
+        } catch (PgSystemException e) {
+            // 재시도 3회 소진 → FAILED 처리
+            log.error("[Payment] PG 시스템 오류. orderId={}, code={}, message={}"
+                    , command.orderId(), e.getPgCode(), e.getMessage());
+            paymentCommandService.handleConfirmFailure(command.orderId(), "PG 시스템 오류: " + e.getPgCode());
+            throw new BusinessException(PaymentErrorCode.PG_SYSTEM_ERROR);
+
+        } catch (PgResponseParseException e) {
+            log.error("[Payment] PG 응답 파싱 실패. orderId={}", command.orderId());
+            paymentCommandService.handleConfirmFailure(command.orderId(), "PG 응답 파싱 실패");
+            throw new BusinessException(PaymentErrorCode.PG_SYSTEM_ERROR);
         }
     }
+
 }

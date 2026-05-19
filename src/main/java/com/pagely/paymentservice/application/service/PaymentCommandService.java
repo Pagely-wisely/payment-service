@@ -5,9 +5,9 @@ import com.pagely.paymentservice.application.dto.command.ConfirmPaymentCommand;
 import com.pagely.paymentservice.application.dto.command.CreatePaymentCommand;
 import com.pagely.paymentservice.application.dto.result.ConfirmPaymentResult;
 import com.pagely.paymentservice.application.dto.result.PaymentProviderConfirmResult;
-import com.pagely.paymentservice.application.port.out.PaymentProvider;
 import com.pagely.paymentservice.domain.event.PaymentEvents;
 import com.pagely.paymentservice.domain.event.payload.PaymentCompletedEvent;
+import com.pagely.paymentservice.domain.event.payload.PaymentConfirmFailedEvent;
 import com.pagely.paymentservice.domain.exception.PaymentErrorCode;
 import com.pagely.paymentservice.domain.model.Payment;
 import com.pagely.paymentservice.domain.repository.PaymentRepository;
@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class PaymentCommandService {
 
     private final PaymentRepository paymentRepository;
-    private final PaymentProvider paymentProvider;
     private final PaymentEvents paymentEvents;
 
     @Transactional
@@ -57,9 +56,11 @@ public class PaymentCommandService {
     }
 
     @Transactional
-    public void markAsFailed(UUID orderId, String reason) {
+    public void handleConfirmFailure(UUID orderId, String reason) {
         Payment payment = getPaymentByOrderIdOrThrow(orderId);
         payment.markFailed(reason);
+        // 결제 승인 실패 이벤트 발행
+        paymentEvents.paymentConfirmFailed(PaymentConfirmFailedEvent.of(payment));
     }
 
     private Payment getPaymentByOrderIdOrThrow(UUID orderId) {

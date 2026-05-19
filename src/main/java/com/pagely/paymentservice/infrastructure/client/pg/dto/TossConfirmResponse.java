@@ -1,4 +1,4 @@
-package com.pagely.paymentservice.infrastructure.client.pg;
+package com.pagely.paymentservice.infrastructure.client.pg.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.pagely.paymentservice.application.dto.result.PaymentProviderConfirmResult;
