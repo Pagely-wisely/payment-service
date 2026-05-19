@@ -66,6 +66,7 @@ public class PaymentCommandFacade {
 
         } catch (PgResponseParseException e) {
             log.error("[Payment] PG 응답 파싱 실패. orderId={}", command.orderId());
+            paymentCommandService.handleConfirmFailure(command.orderId(), "PG 응답 파싱 실패");
             throw new BusinessException(PaymentErrorCode.PG_SYSTEM_ERROR);
         }
     }
