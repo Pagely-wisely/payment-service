@@ -48,9 +48,8 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8000/eureka/
-    enabled: false
-    register-with-eureka: false
-    fetch-registry: false
+    register-with-eureka: true
+    fetch-registry: true
 
 toss:
   base-url: ${TOSS_API_BASE_URL}
